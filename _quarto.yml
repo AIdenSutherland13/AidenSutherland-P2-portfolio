@@ -20,7 +20,7 @@ website:
             file: tidytuesday-exercise/tidytuesday-exercise.qmd
     right:
       - icon: github 
-        href: https://github.com/AIdenSutherland13/AidenSutherland-P2-portfolio       
+        href: https://github.com/AIdenSutherland13/AidenSutherland-P2-portfolio.git      
 
 format:
   html:
