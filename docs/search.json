@@ -147,16 +147,23 @@
     "text": "Placeholder file for the future R coding exercise."
   },
   {
-    "objectID": "aboutme.html",
-    "href": "aboutme.html",
+    "objectID": "aboutme.html#background",
+    "href": "aboutme.html#background",
     "title": "About me",
-    "section": "",
-    "text": "Add some text and a figure describing myself.\nFor details, see the exercise instructions."
+    "section": "Background",
+    "text": "Background\nMy name is Aiden Sutherland, I am 22 years old and am currently pursuing a MS in Data Analytics at UTSA. I have grown up in San Antonio for most of my life, however my dad was stationed in Hawaii for about 3 and a half years when I was in elementary schools, which started my lifelong addiction to Hawaiian food. I have a younger sister and a twin brother, one day ill send him to class in my stead and y’all will never know. I am kind of a military brat, which (if you have lived in San Antonio for long) isn’t uncommon. I enjoy playing video games, going to any body of water, and eating lots of amazing food. As of right now I am in the process of accruing certifications and waiting to join the USAF as an officer."
+  },
+  {
+    "objectID": "aboutme.html#investor-sentiment",
+    "href": "aboutme.html#investor-sentiment",
+    "title": "About me",
+    "section": "Investor Sentiment",
+    "text": "Investor Sentiment\nhttps://www.aaii.com/sentimentsurvey\nAbove is a link to the American Association of Individual Investors. I know that I cannot hear enough about “tHe EcoNomY iS gOiN tO HeLl” from people who don’t invest anything and only look at gas prices, so here is a better view of what most people who are actually invested in the economy think.It also breaks down where these people get their investment income from."
   },
   {
     "objectID": "index.html",
     "href": "index.html",
-    "title": "My website and data analysis portfolio",
+    "title": "Aiden’s website and data analysis portfolio",
     "section": "",
     "text": "Hello\n\nAnd hello again\nWelcome to my website and data analysis portfolio.\n\nPlease use the Menu Bar above to look around.\nHave fun!\n\nFeel free to change this text any way you want 😁!"
   },

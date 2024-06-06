@@ -1,18 +1,15 @@
 ---
 title: "About me"
 ---
-https://github.com/AIdenSutherland13/AidenSutherland-P2-portfolio/blob/main/IMG_4760.jpeg?raw=true
 
-My name is Aiden Sutherland, I am 22 years old and am currently pursuing a MS in DAta Analytics at UTSA.
+[![](IMG_4760.jpeg){fig-align="center" width="407"}](aboutme.qmd)
 
----
-title: "Background"
----
-I have grown up in San Antonio for most of my life, however my dad was stationed in Hawaii for about 3 and a half years when I was in elementary schools, which started my lifelong addiction to hawaiian food. 
-I have a younger sister and a twin brother, one day ill send him to class in my stead and yall will never know. I am kind of a military brat, which (if you have lived in San Antonio for long) isn't uncommon.
-I enjoy playing video games, going to any body of water, and eating lots of amazing food. 
+## Background
 
+My name is Aiden Sutherland, I am 22 years old and am currently pursuing a MS in Data Analytics at UTSA. I have grown up in San Antonio for most of my life, however my dad was stationed in Hawaii for about 3 and a half years when I was in elementary schools, which started my lifelong addiction to Hawaiian food. I have a younger sister and a twin brother, one day ill send him to class in my stead and y'all will never know. I am kind of a military brat, which (if you have lived in San Antonio for long) isn't uncommon. I enjoy playing video games, going to any body of water, and eating lots of amazing food. As of right now I am in the process of accruing certifications and waiting to join the USAF as an officer.
 
+## Investor Sentiment
 
+<https://www.aaii.com/sentimentsurvey>
 
-
+Above is a link to the American Association of Individual Investors. I know that I cannot hear enough about "tHe EcoNomY iS gOiN tO HeLl" from people who don't invest anything and only look at gas prices, so here is a better view of what most people who are actually invested in the economy think.It also breaks down where these people get their investment income from.
