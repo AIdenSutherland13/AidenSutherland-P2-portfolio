@@ -1,7 +1,18 @@
 ---
 title: "About me"
 ---
-IMG_4760.jpeg
-Add some text and a figure describing myself.
+https://github.com/AIdenSutherland13/AidenSutherland-P2-portfolio/blob/main/IMG_4760.jpeg?raw=true
 
-For details, see the exercise instructions. 
+My name is Aiden Sutherland, I am 22 years old and am currently pursuing a MS in DAta Analytics at UTSA.
+
+---
+title: "Background"
+---
+I have grown up in San Antonio for most of my life, however my dad was stationed in Hawaii for about 3 and a half years when I was in elementary schools, which started my lifelong addiction to hawaiian food. 
+I have a younger sister and a twin brother, one day ill send him to class in my stead and yall will never know. I am kind of a military brat, which (if you have lived in San Antonio for long) isn't uncommon.
+I enjoy playing video games, going to any body of water, and eating lots of amazing food. 
+
+
+
+
+
