@@ -104,7 +104,25 @@ plot(p4)
 figure_file = here("starter-analysis-exercise","results","figures","height-weight-stratified.png")
 ggsave(filename = figure_file, plot=p4) 
 ```
+Here is box plot comparing blood type to height
 
+```{r}
+ggplot(d4, aes(x = `Blood type`, y = Height)) +
+  geom_boxplot() +
+  labs(title = "Boxplot of Height by Blood Type",
+       x = "Blood Type",
+       y = "Height") +
+  theme_minimal()
+```
+Here is a Scatter plot showing Age and Weight
+```{r}
+ggplot(d4, aes(x = Weight, y = Age)) +
+  geom_point() +
+  labs(title = "Scatterplot of Age vs Weight",
+       x = "Weight",
+       y = "Age") +
+  theme_minimal()
+```
 
 
 # Notes
