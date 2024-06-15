@@ -107,7 +107,7 @@ ggsave(filename = figure_file, plot=p4)
 Here is box plot comparing blood type to height
 
 ```{r}
-p5 <- ggplot(d4, aes(x = `Blood type`, y = Height)) +
+p5 <- ggplot(mydata, aes(x = `Blood type`, y = Height)) +
   geom_boxplot() +
   labs(title = "Boxplot of Height by Blood Type",
        x = "Blood Type",
@@ -119,7 +119,7 @@ ggsave(filename = figure_file, plot=p5)
 ```
 Here is a Scatter plot showing Age and Weight
 ```{r}
-p6 <- ggplot(d4, aes(x = Weight, y = Age)) +
+p6 <- ggplot(mydata, aes(x = Weight, y = Age)) +
   geom_point() +
   labs(title = "Scatterplot of Age vs Weight",
        x = "Weight",
