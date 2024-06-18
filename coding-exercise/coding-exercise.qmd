@@ -2,4 +2,129 @@
 title: "R Coding Exercise"
 ---
 
-Placeholder file for the future R coding exercise.
+load the dslabs and ggplot2 library
+
+```{r}
+library(dslabs)
+library(ggplot2)
+```
+
+help for gapminder and overview of data structure
+
+```{r}
+help(gapminder)
+
+str(gapminder)
+```
+
+Summary of the gapminder data
+
+```{r}
+summary(gapminder)
+```
+
+What type of object is gapminder
+
+```{r}
+class(gapminder)
+```
+
+Filter out the data to include only African Countries and check the structure of the new data set.
+
+```{r}
+africadata <- gapminder[gapminder$continent == "Africa", ]
+str(africadata)
+summary(africadata)
+```
+
+creating 2 new objects from the africadata data set
+
+```{r}
+africa_infant_life <- africadata[, c("infant_mortality", "life_expectancy")]
+africa_pop_life <- africadata[, c("population", "life_expectancy")]
+```
+
+Scatter plot for life expectancy as a function of infant mortality
+
+```{r}
+ggplot(africa_infant_life, aes(x = infant_mortality, y = life_expectancy)) +
+  geom_point() +
+  labs(title = "Life Expectancy vs. Infant Mortality in African Countries",
+       x = "Infant Mortality",
+       y = "Life Expectancy") 
+```
+
+Scatter plot for life expectancy as a function of population size
+
+```{r}
+ggplot(africa_pop_life, aes(x = population, y = life_expectancy)) +
+  geom_point() +
+  scale_x_log10() +
+  labs(title = "Life Expectancy vs. Population Size in African Countries",
+       x = "Population (log scale)",
+       y = "Life Expectancy")
+```
+
+referring back to the African data set to observe what is happening.
+
+```{r}
+str(africadata)
+```
+
+The streaks of data can be a result of there being different years for the same countries, which could be a reason why you see streaks in different areas of the map, as it could be plotting the same country year by year.
+
+Check for missing values in infant_mortality by year
+
+```{r}
+missing_infant_mortality <- aggregate(infant_mortality ~ year, data = africadata, function(x) sum(is.na(x)))
+print(missing_infant_mortality)
+```
+
+filter for the year 2000 and display the structure and summary of the data
+
+```{r}
+africa_2000 <- africadata[africadata$year == 2000, ]
+
+str(africa_2000)
+
+summary(africa_2000)
+```
+
+Scatter plot of life expectancy vs. infant mortality for the year 2000
+
+```{r}
+ggplot(africa_2000, aes(x = infant_mortality, y = life_expectancy)) +
+  geom_point() +
+  labs(title = "Life Expectancy vs. Infant Mortality in African Countries (2000)",
+       x = "Infant Mortality",
+       y = "Life Expectancy")
+```
+
+Scatter plot of life expectancy vs. population size for the year 2000
+
+```{r}
+ggplot(africa_2000, aes(x = population, y = life_expectancy)) +
+  geom_point() +
+  scale_x_log10() +
+  labs(title = "Life Expectancy vs. Population Size in African Countries (2000)",
+       x = "Population (log scale)",
+       y = "Life Expectancy")
+```
+
+Fit linear models
+
+```{r}
+fit1 <- lm(life_expectancy ~ infant_mortality, data = africa_2000)
+fit2 <- lm(life_expectancy ~ population, data = africa_2000)
+```
+
+summary of the fitted models
+
+```{r}
+summary(fit1)
+summary(fit2)
+```
+
+Given that the p-value for the first fitted model (fit1) is extremely low, we can conclude that there is a significant negative relationship between infant mortality and life expectancy.
+
+Given the p-value for the second fitted model (fit2) is high, we can conclude that there is no significant relationship between population size and life expectancy.
