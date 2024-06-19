@@ -149,44 +149,50 @@ summary(women_death_prob)
 
 Create new datasets from the women_depth_prob object.
 ```{r}
-age_death_prob <- women_death_prob[, c("age", "death_prob")]
-year_death_prob <- women_death_prob[, c("year", "death_prob")]
+age_death_prob <- death_prob[, c("age", "prob")]
+sex_death_prob <- death_prob[, c("sex", "prob")]
 ```
 
 display the new objects' structure
 ```{r}
 str(age_death_prob)
-str(year_death_prob)
+str(sex_death_prob)
 ```
 Display the summary of both objects'
 ```{r}
 summary(age_death_prob)
-summary(year_death_prob)
+summary(sex_death_prob)
 ```
 
 Plot death_prob as a function of age
 ```{r}
-ggplot(age_death_prob, aes(x = age, y = death_prob)) +
+ggplot(age_death_prob, aes(x = age, y = prob)) +
   geom_point() +
   labs(title = "Death Probability as a Function of Age",
        x = "Age",
        y = "Death Probability")
 ```
-Plot death_prob as a function of year
+Plot death_prob as a function of sex
 ```{r}
-ggplot(year_death_prob, aes(x = year, y = death_prob)) +
-  geom_point() +
-  labs(title = "Death Probability as a Function of Year",
-       x = "Year",
+ggplot(sex_death_prob, aes(x = sex, y = prob)) +
+  geom_boxplot() +
+  labs(title = "Death Probability as a Function of Sex",
+       x = "Sex",
        y = "Death Probability")
 ```
-Fit linear model: death_prob as a function of age and the second model as a function of the year
+Fit linear model: death_prob as a function of age and the second model as a function of sex
 ```{r}
-fit_age <- lm(death_prob ~ age, data = age_death_prob)
-fit_year <- lm(death_prob ~ year, data = year_death_prob)
+fit_age <- lm(prob ~ age, data = age_death_prob)
+fit_year <- lm(prob ~ sex, data = sex_death_prob)
 ```
 Here is a Summary of the 2 new models
 ```{r}
 summary(fit_age)
 summary(fit_year)
 ```
+The p-value for age is extremely low, indicating that the relationship between age and death probability is statistically significant.
+The p-value for sex is not statistically significant, meaning there is no difference in death probability between men and women.
+
+
+
+

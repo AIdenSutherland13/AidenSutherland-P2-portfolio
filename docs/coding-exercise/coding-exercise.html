@@ -555,6 +555,167 @@ F-statistic: 0.2549 on 1 and 49 DF,  p-value: 0.6159</code></pre>
 </div>
 <p>Given that the p-value for the first fitted model (fit1) is extremely low, we can conclude that there is a significant negative relationship between infant mortality and life expectancy.</p>
 <p>Given the p-value for the second fitted model (fit2) is high, we can conclude that there is no significant relationship between population size and life expectancy.</p>
+<p>This section is from My other account :)</p>
+<p>Load the death_prob dataset, which is a dataset that lists the probability of death within 1 year by age and sex in the United States in 2015. Also get an overview of the dataset structure</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(death_prob)</span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a><span class="fu">class</span>(death_prob)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "data.frame"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(death_prob)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>'data.frame':   240 obs. of  3 variables:
+ $ age : int  0 1 2 3 4 5 6 7 8 9 ...
+ $ sex : Factor w/ 2 levels "Female","Male": 2 2 2 2 2 2 2 2 2 2 ...
+ $ prob: num  0.006383 0.000453 0.000282 0.00023 0.000169 ...</code></pre>
+</div>
+</div>
+<p>Next I will only be looking at the death probability of just women, so I will create a new dataset with only the “Feamale” variable. I also repeat the steps from death_pr to look at the new dataset structure</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a>women_death_prob <span class="ot">&lt;-</span> <span class="fu">subset</span>(death_prob, sex <span class="sc">==</span> <span class="st">"Female"</span>)</span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(women_death_prob)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>'data.frame':   120 obs. of  3 variables:
+ $ age : int  0 1 2 3 4 5 6 7 8 9 ...
+ $ sex : Factor w/ 2 levels "Female","Male": 1 1 1 1 1 1 1 1 1 1 ...
+ $ prob: num  0.005374 0.000353 0.000231 0.000165 0.000129 ...</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(women_death_prob)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>      age             sex           prob         
+ Min.   :  0.00   Female:120   Min.   :0.000091  
+ 1st Qu.: 29.75   Male  :  0   1st Qu.:0.000779  
+ Median : 59.50                Median :0.006537  
+ Mean   : 59.50                Mean   :0.121477  
+ 3rd Qu.: 89.25                3rd Qu.:0.121924  
+ Max.   :119.00                Max.   :0.899639  </code></pre>
+</div>
+</div>
+<p>Create new datasets from the women_depth_prob object.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb45"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a>age_death_prob <span class="ot">&lt;-</span> death_prob[, <span class="fu">c</span>(<span class="st">"age"</span>, <span class="st">"prob"</span>)]</span>
+<span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a>sex_death_prob <span class="ot">&lt;-</span> death_prob[, <span class="fu">c</span>(<span class="st">"sex"</span>, <span class="st">"prob"</span>)]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>display the new objects’ structure</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb46"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(age_death_prob)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>'data.frame':   240 obs. of  2 variables:
+ $ age : int  0 1 2 3 4 5 6 7 8 9 ...
+ $ prob: num  0.006383 0.000453 0.000282 0.00023 0.000169 ...</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb48"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(sex_death_prob)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>'data.frame':   240 obs. of  2 variables:
+ $ sex : Factor w/ 2 levels "Female","Male": 2 2 2 2 2 2 2 2 2 2 ...
+ $ prob: num  0.006383 0.000453 0.000282 0.00023 0.000169 ...</code></pre>
+</div>
+</div>
+<p>Display the summary of both objects’</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb50"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(age_death_prob)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>      age              prob         
+ Min.   :  0.00   Min.   :0.000091  
+ 1st Qu.: 29.75   1st Qu.:0.001318  
+ Median : 59.50   Median :0.008412  
+ Mean   : 59.50   Mean   :0.127254  
+ 3rd Qu.: 89.25   3rd Qu.:0.138332  
+ Max.   :119.00   Max.   :0.899639  </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb52"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(sex_death_prob)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>     sex           prob         
+ Female:120   Min.   :0.000091  
+ Male  :120   1st Qu.:0.001318  
+              Median :0.008412  
+              Mean   :0.127254  
+              3rd Qu.:0.138332  
+              Max.   :0.899639  </code></pre>
+</div>
+</div>
+<p>Plot death_prob as a function of age</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb54"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(age_death_prob, <span class="fu">aes</span>(<span class="at">x =</span> age, <span class="at">y =</span> prob)) <span class="sc">+</span></span>
+<span id="cb54-2"><a href="#cb54-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
+<span id="cb54-3"><a href="#cb54-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Death Probability as a Function of Age"</span>,</span>
+<span id="cb54-4"><a href="#cb54-4" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Age"</span>,</span>
+<span id="cb54-5"><a href="#cb54-5" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"Death Probability"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="coding-exercise_files/figure-html/unnamed-chunk-21-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Plot death_prob as a function of sex</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb55"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb55-1"><a href="#cb55-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(sex_death_prob, <span class="fu">aes</span>(<span class="at">x =</span> sex, <span class="at">y =</span> prob)) <span class="sc">+</span></span>
+<span id="cb55-2"><a href="#cb55-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_boxplot</span>() <span class="sc">+</span></span>
+<span id="cb55-3"><a href="#cb55-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Death Probability as a Function of Sex"</span>,</span>
+<span id="cb55-4"><a href="#cb55-4" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Sex"</span>,</span>
+<span id="cb55-5"><a href="#cb55-5" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"Death Probability"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="coding-exercise_files/figure-html/unnamed-chunk-22-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Fit linear model: death_prob as a function of age and the second model as a function of sex</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb56"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb56-1"><a href="#cb56-1" aria-hidden="true" tabindex="-1"></a>fit_age <span class="ot">&lt;-</span> <span class="fu">lm</span>(prob <span class="sc">~</span> age, <span class="at">data =</span> age_death_prob)</span>
+<span id="cb56-2"><a href="#cb56-2" aria-hidden="true" tabindex="-1"></a>fit_year <span class="ot">&lt;-</span> <span class="fu">lm</span>(prob <span class="sc">~</span> sex, <span class="at">data =</span> sex_death_prob)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Here is a Summary of the 2 new models</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb57"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb57-1"><a href="#cb57-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit_age)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = prob ~ age, data = age_death_prob)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-0.18435 -0.12208 -0.02019  0.08843  0.48110 
+
+Coefficients:
+              Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept) -0.1640301  0.0186648  -8.788 3.08e-16 ***
+age          0.0048955  0.0002711  18.058  &lt; 2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 0.1455 on 238 degrees of freedom
+Multiple R-squared:  0.5781,    Adjusted R-squared:  0.5763 
+F-statistic: 326.1 on 1 and 238 DF,  p-value: &lt; 2.2e-16</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb59"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb59-1"><a href="#cb59-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit_year)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = prob ~ sex, data = sex_death_prob)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-0.13294 -0.12178 -0.11685  0.01252  0.77816 
+
+Coefficients:
+            Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)  0.12148    0.02044   5.943 9.86e-09 ***
+sexMale      0.01155    0.02891   0.400     0.69    
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 0.2239 on 238 degrees of freedom
+Multiple R-squared:  0.0006709, Adjusted R-squared:  -0.003528 
+F-statistic: 0.1598 on 1 and 238 DF,  p-value: 0.6897</code></pre>
+</div>
+</div>
+<p>The p-value for age is extremely low, indicating that the relationship between age and death probability is statistically significant. The p-value for sex is not statistically significant, meaning there is no difference in death probability between men and women.</p>
 
 
 
