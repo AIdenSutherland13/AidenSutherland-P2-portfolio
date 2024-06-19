@@ -128,3 +128,65 @@ summary(fit2)
 Given that the p-value for the first fitted model (fit1) is extremely low, we can conclude that there is a significant negative relationship between infant mortality and life expectancy.
 
 Given the p-value for the second fitted model (fit2) is high, we can conclude that there is no significant relationship between population size and life expectancy.
+
+This section is from My other account :)
+
+Load the death_prob dataset, which is a dataset that lists the probability of death within 1 year by age and sex in the United States in 2015.
+Also get an overview of the dataset structure
+```{r}
+data(death_prob)
+class(death_prob)
+str(death_prob)
+```
+
+Next I will only be looking at the death probability of just women, so I will create a new dataset with only the "Feamale" variable.
+I also repeat the steps from death_pr to look at the new dataset structure
+```{r}
+women_death_prob <- subset(death_prob, sex == "Female")
+str(women_death_prob)
+summary(women_death_prob)
+```
+
+Create new datasets from the women_depth_prob object.
+```{r}
+age_death_prob <- women_death_prob[, c("age", "death_prob")]
+year_death_prob <- women_death_prob[, c("year", "death_prob")]
+```
+
+display the new objects' structure
+```{r}
+str(age_death_prob)
+str(year_death_prob)
+```
+Display the summary of both objects'
+```{r}
+summary(age_death_prob)
+summary(year_death_prob)
+```
+
+Plot death_prob as a function of age
+```{r}
+ggplot(age_death_prob, aes(x = age, y = death_prob)) +
+  geom_point() +
+  labs(title = "Death Probability as a Function of Age",
+       x = "Age",
+       y = "Death Probability")
+```
+Plot death_prob as a function of year
+```{r}
+ggplot(year_death_prob, aes(x = year, y = death_prob)) +
+  geom_point() +
+  labs(title = "Death Probability as a Function of Year",
+       x = "Year",
+       y = "Death Probability")
+```
+Fit linear model: death_prob as a function of age and the second model as a function of the year
+```{r}
+fit_age <- lm(death_prob ~ age, data = age_death_prob)
+fit_year <- lm(death_prob ~ year, data = year_death_prob)
+```
+Here is a Summary of the 2 new models
+```{r}
+summary(fit_age)
+summary(fit_year)
+```
