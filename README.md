@@ -1,5 +1,5 @@
 # My website and data analysis portfolio
 
 Here is my website
+https://aidensutherland13.github.io/AidenSutherland-P2-portfolio/
 
-https://github.com/AIdenSutherland13/AidenSutherland-P2-portfolio.git
