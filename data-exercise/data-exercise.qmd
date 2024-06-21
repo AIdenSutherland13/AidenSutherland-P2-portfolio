@@ -1,0 +1,80 @@
+---
+title: "Data Exercise"
+---
+
+###Option 2
+
+#Generate the Sythetic Data
+For this I will do Age, salary, and employee_type for my variables
+```{r}
+
+library(tidyverse)
+library(ggplot2)
+
+set.seed(123)
+n <- 1000
+
+# Continuous variables
+x1 <- rnorm(n, mean = 50, sd = 10)  
+x2 <- rnorm(n, mean = 30, sd = 5)   
+
+# Categorical variable with 3 levels
+x3 <- sample(c("A", "B", "C"), n, replace = TRUE)
+
+# Dependent variable with some associations
+y <- 3 + 2*x1 + 0.5*x2 + ifelse(x3 == "A", 5, ifelse(x3 == "B", -3, 0)) + rnorm(n)
+
+data <- data.frame(x1, x2, x3, y)
+head(data)
+```
+
+
+#Explore the data
+```{r}
+summary(data)
+```
+```{r}
+ggplot(data, aes(y)) +
+  geom_histogram(binwidth = 10, fill = 'blue', color = 'black', alpha = 0.7) +
+  ggtitle('Histogram of y')
+
+ggplot(data, aes(x = x1, y = y)) +
+  geom_point(alpha = 0.5) +
+  geom_smooth(method = "lm", col = "red") +
+  ggtitle('Scatter plot of y vs x1')
+
+ggplot(data, aes(x = x2, y = y)) +
+  geom_point(alpha = 0.5) +
+  geom_smooth(method = "lm", col = "red") +
+  ggtitle('Scatter plot of y vs x2')
+
+ggplot(data, aes(x = x3, y = y)) +
+  geom_boxplot(fill = 'cyan', color = 'black') +
+  ggtitle('Boxplot of y vs x3')
+```
+
+
+#Simple models for generated data
+
+```{r}
+#Linear Models
+model1 <- lm(y ~ x1 + x2 + x3, data = data)
+
+model2 <- lm(y ~ x1 * x3 + x2, data = data)
+
+# Logistic regression (create a binary outcome variable)
+data$y_bin <- ifelse(data$y > median(data$y), 1, 0)
+model3 <- glm(y_bin ~ x1 + x2 + x3, data = data, family = binomial)
+
+# Print model summaries to compare
+summary(model1)
+summary(model2)
+summary(model3)
+```
+Model 1 shows the main linear associations, while model 2 shows both main and interaction effects.
+Model 3 demonstrates the flexibility of logistic regression in handling binary outcomes with the same associations in the previous 2 models.
+
+
+
+
+
