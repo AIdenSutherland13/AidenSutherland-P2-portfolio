@@ -1,0 +1,124 @@
+---
+title: "cdcdata-exercise"
+editor: visual
+---
+
+The data set Provisional_COVID-19_Deaths_by_Sex_and_Age_20240703.csv shows data of deaths involving COVID-19, pneumonia, and influenza reported to NCHS by sex, age group, and jurisdiction of occurrence.It was last updated on September 27th, 2023.
+
+```{r}
+library(dplyr)
+library(stringr)
+library(readr)
+library(ggplot2)
+library(gridExtra)
+```
+
+Here is a quick preview of what the data set looks like after importing it.
+
+```{r}
+covid_data <- read.csv("~/GitHub/AidenSutherland-P2-portfolio/AidenSutherland-P2-portfolio/cdcdata-exercise/Provisional_COVID-19_Deaths_by_Sex_and_Age_20240703.csv")
+head(covid_data)
+```
+
+Here i changed the columns to be separated with _ instead of . as well as removing any rows containing "NA" as well as removing the footnote column and any row containing the United States instead of the actual state in the "state" column.
+
+The Age_Group column was a mess, so I filtered out the data that seemed to have different age group increments so we only have one age group to go with.
+
+```{r}
+colnames(covid_data) <- str_replace_all(colnames(covid_data), "[^[:alnum:]_]", "_")
+covid_data <- na.omit(covid_data)
+covid_data <- covid_data %>%
+  select(-Footnote)
+covid_data <- covid_data %>%
+  filter(State != "United States")
+covid_data <- covid_data %>%
+  filter(Age_Group != "0-17 years")
+covid_data <- covid_data %>%
+  filter(Age_Group != "18-29 years")
+covid_data <- covid_data %>%
+  filter(Age_Group != "30-39 years")
+covid_data <- covid_data %>%
+  filter(Age_Group != "40-49 years")
+covid_data <- covid_data %>%
+  filter(Age_Group != "50-59 years")
+covid_data <- covid_data %>%
+  filter(Age_Group != "50-64 years")
+covid_data <- covid_data %>%
+  filter(Age_Group != "All Ages")
+summary(covid_data)
+
+
+```
+
+Here are the columns I selected for the final data set.
+
+```{r}
+selected_columns <- c("Year", "Month", "State", "Sex", "Age_Group", "COVID_19_Deaths", "Total_Deaths", "Pneumonia_Deaths", "Pneumonia_and_COVID_19_Deaths", "Influenza_Deaths", "Pneumonia__Influenza__or_COVID_19_Deaths")
+covid_data_subset <- covid_data %>%
+  select(all_of(selected_columns))
+
+```
+
+##EDA
+
+Here is a summary of all the categorical variables I realize that NYC is in New York, however the population density of that city should be noted separately from other reports from the rest of the state.
+
+```{r}
+cat_vars <- c("Year", "Month", "State", "Sex", "Age_Group")
+
+for (cat_var in cat_vars) {
+  cat_var_summary <- covid_data_subset %>%
+    group_by(!!sym(cat_var)) %>%
+    summarise(count = n()) %>%
+    mutate(percentage = round(count / sum(count) * 100, 2))
+  
+  print(cat_var_summary)
+}
+```
+
+Here is a summary of all of the continuous variables.
+
+```{r}
+cont_vars <- c("COVID_19_Deaths", "Total_Deaths", "Pneumonia_Deaths", "Pneumonia_and_COVID_19_Deaths", "Influenza_Deaths", "Pneumonia__Influenza__or_COVID_19_Deaths")
+
+for (cont_var in cont_vars) {
+  cont_var_summary <- covid_data_subset %>%
+    summarise(mean = mean(!!sym(cont_var), na.rm = TRUE),
+              sd = sd(!!sym(cont_var), na.rm = TRUE))
+  
+  print(cont_var_summary)
+}
+
+```
+
+Here are corresponding plots for each continuous variable to check for normality.
+
+```{r}
+for (cont_var in cont_vars) {
+ hist_plot <- ggplot(covid_data_subset, aes_string(x = cont_var)) +
+    geom_histogram(aes(y = ..density..), binwidth = 100, fill = "blue", alpha = 0.7, color = "black") +
+    stat_function(fun = dnorm, args = list(mean = mean(covid_data_subset[[cont_var]], na.rm = TRUE), 
+                                           sd = sd(covid_data_subset[[cont_var]], na.rm = TRUE)), 
+                  color = "red", size = 1) +
+    labs(title = paste("Histogram and Normal Curve of", cont_var),
+         x = cont_var,
+         y = "Density")
+ print(hist_plot)
+}
+```
+
+Here is A Q-Q plot
+```{r}
+for (cont_var in cont_vars) {
+  qq_plot <- ggplot(covid_data_subset, aes_string(sample = cont_var)) +
+    stat_qq() +
+    stat_qq_line() +
+    labs(title = paste("Q-Q Plot of", cont_var),
+         x = "Theoretical Quantiles",
+         y = "Sample Quantiles")
+  
+  # Arrange the plots side by side
+  grid.arrange(hist_plot, qq_plot, ncol = 2)
+  }
+```
+
