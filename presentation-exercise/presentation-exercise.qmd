@@ -2,12 +2,93 @@
 title: "Presentation Exercise"
 ---
 
+Here is the link to the news article that has the visualization I will be recreating:
+https://fivethirtyeight.com/features/aging-congress-boomers/
+
+
+
 ```{r}
-library(ggplot2)
-data_aging_congress <- read.csv("~/GitHub/AidenSutherland-P2-portfolio/AidenSutherland-P2-portfolio/presentation-exercise/data_aging_congress.csv")
-head(data_aging_congress)
+data <- read.csv("~/GitHub/AidenSutherland-P2-portfolio/AidenSutherland-P2-portfolio/presentation-exercise/data_aging_congress.csv")
+head(data)
 ```
+
+
+Here is the code to recreate the "Median age of the U.S. Senate and U.S. House by Congress, 1919 to 2023" graph found in the article, I used AI to recreate the overall graph, however I needed to manipulate the data somewhat in order for the graph to mimic what was on the website.
 ```{r}
-data_stacked <- melt(data, id.vars = "year")
+library(dplyr)
+library(plotly)
+library(lubridate)
+data <- data %>%
+  mutate(start_date = as.Date(start_date)) %>%
+  filter(year(start_date) >= 1919 & year(start_date) <= 2023)
+
+# Extract the year from start_date
+data <- data %>%
+  mutate(year = year(start_date))
+
+# Group by year and chamber, and calculate the median age
+median_age <- data %>%
+  group_by(year, chamber) %>%
+  summarize(median_age = round(median(age_years, na.rm = TRUE)))
+  
+
+median_age <- median_age %>%
+  mutate(hover_text = paste(chamber, '<br>', year, '<br>', round(median_age, 1)))
+# Create an interactive plot
+plot <- plot_ly(median_age, x = ~year, y = ~median_age, color = ~chamber, text = ~hover_text, hoverinfo = 'text', type = 'scatter', mode = 'markers', line = list(shape = 'hv', width = 6)) %>%
+  layout(title = list(text = 'Median Age of the U.S. Senate and U.S. House by Year (1919-2023)', x = 0.5),
+         xaxis = list(title = 'Year', tickformat = "%Y", tickmode = 'linear', dtick = 10, range = c(1919, 2020), showgrid = FALSE),
+         yaxis = list(title = 'Median Age', range = c(45, 65), showgrid = TRUE),
+         legend = list(x = 0, y = 1, xanchor = 'left', yanchor = 'top', title = list(text = ''), traceorder = 'reversed'),
+         plot_bgcolor = 'white',
+         paper_bgcolor = 'white',
+         hoverdistance = 100,
+         spikedistance = -1
+         )
+
+# Show the plot
+plot
 ```
+
+
+This next part I will be generating 2 tables to showing the median age for each Chamber of Congress from 1919 - 2023
+I had to remove a few columns in the data frame I used for the 2 tables, specifically the chamber column given that each table would have a column that would say the same chamber over and over again.
+
+```{r}
+library(flextable)
+
+
+# Remove the hover_text column
+median_age <- median_age[, !(names(median_age) %in% "hover_text")]
+
+# Filter data for Senate and House
+senate_data <- median_age[median_age$chamber == "Senate", ]
+house_data <- median_age[median_age$chamber == "House", ]
+
+cols_to_include <- setdiff(colnames(senate_data), "chamber")
+# Create flextable objects
+senate_table <- flextable(senate_data, cols_to_include)
+house_table <- flextable(house_data, cols_to_include)
+
+# Define table properties
+senate_table <- set_table_properties(senate_table, width = 1, layout = "autofit")
+house_table <- set_table_properties(house_table, width = 1, layout = "autofit")
+
+senate_table <- set_formatter(senate_table, year = function(x) format(x, big.mark = "", scientific = FALSE))
+house_table <- set_formatter(house_table, year = function(x) format(x, big.mark = "", scientific = FALSE))
+
+senate_table <- add_header_row( senate_table, values = c("Median Age in The Senate from 1919 to 2023"), colwidths = 2)
+house_table <- add_header_row( house_table, values = c("Median Age in The House of Representatives from 1919 to 2023"), colwidths = 2)
+
+senate_table <- theme_vader(senate_table)
+house_table <- theme_vader(house_table)
+senate_table
+house_table
+
+
+
+```
+
+
+
 
