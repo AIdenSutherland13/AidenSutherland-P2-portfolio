@@ -2,4 +2,12 @@
 title: "Presentation Exercise"
 ---
 
-Placeholder file for the future data/results presentation exercise.
+```{r}
+library(ggplot2)
+data_aging_congress <- read.csv("~/GitHub/AidenSutherland-P2-portfolio/AidenSutherland-P2-portfolio/presentation-exercise/data_aging_congress.csv")
+head(data_aging_congress)
+```
+```{r}
+data_stacked <- melt(data, id.vars = "year")
+```
+
