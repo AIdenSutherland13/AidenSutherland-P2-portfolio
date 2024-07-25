@@ -1,5 +1,353 @@
+
 ---
 title: "Tidy Tuesday Exercise"
 ---
 
-Placeholder file for the future Tidy Tuesday exercise.
+Installing Data from GitHub
+```{r}
+# Clean data provided by <https://github.com/kkakey/American_Idol>. No cleaning was necessary.
+auditions <- readr::read_csv("https://raw.githubusercontent.com/kkakey/American_Idol/main/metadata/auditions.csv")
+eliminations <- readr::read_csv("https://raw.githubusercontent.com/kkakey/American_Idol/main/metadata/elimination_chart.csv")
+finalists <- readr::read_csv("https://raw.githubusercontent.com/kkakey/American_Idol/main/metadata/finalists.csv")
+ratings <- readr::read_csv("https://raw.githubusercontent.com/kkakey/American_Idol/main/metadata/ratings.csv")
+seasons <- readr::read_csv("https://raw.githubusercontent.com/kkakey/American_Idol/main/metadata/seasons.csv")
+songs <- readr::read_csv("https://raw.githubusercontent.com/kkakey/American_Idol/main/Songs/songs_all.csv")
+
+
+
+
+```
+
+View the first few rows of each dataset
+```{r}
+head(auditions)
+head(eliminations)
+head(finalists)
+head(ratings)
+head(seasons)
+head(songs)
+```
+
+
+Data cleaning/wrangling - I converted every chr column to a factor so I can easily plot them if needed to. The only dataset that I removed NA from was the songs dataset.
+
+```{r}
+# Load necessary libraries
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(ggcorrplot)
+
+# Convert relevant columns to appropriate data types
+auditions <- auditions %>%
+  mutate(across(where(is.character), as.factor))
+
+eliminations <- eliminations %>%
+  mutate(across(where(is.character), as.factor))
+
+finalists <- finalists %>%
+  mutate(across(where(is.character), as.factor))
+
+ratings <- ratings %>%
+  mutate(across(where(is.character), as.factor))
+
+seasons <- seasons %>%
+  mutate(across(where(is.character), as.factor))
+
+songs <- songs %>%
+  mutate(across(where(is.character), as.factor))
+songs <- songs %>%
+  drop_na()
+songs$season <- as.numeric(songs$season)
+
+dfs <- list(auditions, eliminations, finalists, ratings, seasons, songs)
+
+# Remove duplicates from each dataframe
+dfs_unique <- lapply(dfs, function(df) {
+  df %>%
+    distinct()
+})
+```
+
+
+
+```{r}
+names(finalists)[names(finalists) == "Contestant"] <- "contestant"
+names(finalists)[names(finalists) == "Season"] <- "season"
+```
+
+
+```{r}
+data_combined <- songs %>%
+  inner_join(finalists, by = c("season", "contestant"), relationship = "many-to-many")
+data_combined <- data_combined %>%
+  left_join(seasons, by = c("season"), relationship = "many-to-many")
+data_combined <- data_combined %>%
+  inner_join(ratings, by = "season", relationship = "many-to-many")
+
+
+
+
+```
+
+I want to see what effects the overall viewers in millions, below is for the numeric variables only.To determine the categorical variables I will be going through visualizations.
+```{r}
+library(caret)
+library(randomForest)
+
+numeric_vars <- data_combined %>% select_if(is.numeric)
+cor_matrix <- cor(numeric_vars, use = "complete.obs")
+
+# Extract correlations with 'viewers_in_millions'
+cor_viewers <- cor_matrix["viewers_in_millions", ]
+cor_viewers <- sort(cor_viewers, decreasing = TRUE)
+print(cor_viewers)
+
+
+
+```
+
+```{r}
+#Box Plot of Viewers in Millions by week
+ggplot(data_combined, aes(x = week, y = viewers_in_millions)) +
+  geom_boxplot() +
+  facet_wrap(~season, scales = "free")+
+  ggtitle("Box Plot of Viewers in Millions by week")
+
+#Box Plot of Viewers in Millions by Contestant
+ggplot(data_combined, aes(x = contestant, y = viewers_in_millions)) +
+  geom_boxplot() + 
+  facet_wrap(~season, scales = "free")+
+  ggtitle("Box Plot of Viewers in Millions by Contestant")
+
+#Box Plot of Viewers in Millions by Song
+ggplot(data_combined, aes(x = song, y = viewers_in_millions)) +
+  geom_boxplot() + 
+  facet_wrap(~season, scales = "free")+
+  ggtitle("Box Plot of Viewers in Millions by Song")
+
+#Box Plot of Viewers in Millions by Finals_venue
+ggplot(data_combined, aes(x = finals_venue, y = viewers_in_millions)) +
+  geom_boxplot() + 
+  ggtitle("Box Plot of Viewers in Millions by Finals_venue")
+
+#Box Plot of Viewers in Millions by Time Slot (ET), also removing all timeslots with NA
+df <- data_combined %>%
+  filter(!is.na(timeslot_et))
+
+ggplot(df, aes(x = timeslot_et, y = viewers_in_millions)) +
+  geom_boxplot() + 
+  ggtitle("Box Plot of Viewers in Millions by Time Slot (ET)")+
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+#Box Plot of Viewers in Millions by Week Rank
+ggplot(data_combined, aes(x = weekrank, y = viewers_in_millions)) +
+  geom_boxplot() + 
+  ggtitle("Box Plot of Viewers in Millions by Week Rank")
+
+#Box Plot of Viewers in Millions by Original Network
+ggplot(data_combined, aes(x = original_network, y = viewers_in_millions)) +
+  geom_boxplot() + 
+  ggtitle("Box Plot of Viewers in Millions by Original Network")
+```
+
+It appears that original network, week_rank, timeslot_et, and finals_venue all show a pattern when pertaining to viewers in millions.
+The only numerical predictor that shows a negative relationship between views is nightly rank.
+
+
+Based on my initial findings my hypothesis is that nightly rank, original network, week_rank, timeslot_et, and finals_venue all have an effect on the overall views one episode can get.
+
+```{r}
+selected_col <- c("original_network", "weekrank", "timeslot_et", "finals_venue", "nightlyrank", "viewers_in_millions")
+
+new_data <- data_combined %>%
+  select(all_of(selected_col))
+```
+
+Impute missing values in numerical columns
+
+```{r}
+data <- new_data %>%
+  mutate(nightlyrank = ifelse(is.na(nightlyrank), median(nightlyrank, na.rm = TRUE), nightlyrank))
+
+# If necessary, remove rows with missing values in other variables
+new_data <- drop_na(data)
+
+#normalize numerical variable
+new_data <- new_data %>%
+  mutate(nightlyrank = scale(nightlyrank))
+
+```
+
+
+Here I fix the issue we see in the visualization of 2 thursdays and wednesdays
+```{r}
+library(stringr)
+new_data <- new_data %>%
+  mutate(timeslot_et = str_squish(timeslot_et))
+
+
+ggplot(new_data, aes(x = timeslot_et, y = viewers_in_millions)) +
+  geom_boxplot() + 
+  ggtitle("Box Plot of Viewers in Millions by Time Slot (ET)")+
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+```
+After clearing the rows with missing numerical variables, it appears a whole day of the week is taken out of the data, there seems to still be a relationship between viewership and the time of week, however I am probably going to throw this predictor out due to the lack of variables.
+
+
+```{r}
+selected_col <- c("original_network", "weekrank", "finals_venue", "nightlyrank", "viewers_in_millions")
+
+new_data <- data_combined %>%
+  select(all_of(selected_col))
+```
+
+
+
+Model Training
+
+```{r}
+library(rsample)
+# split data
+set.seed(123) 
+split <- initial_split(new_data, prop = 0.7)
+train_data <- training(split)
+test_data <- testing(split)
+
+sum(is.na(train_data$viewers_in_millions))
+# Remove rows with missing values in the response variable
+train_data <- train_data %>%
+  filter(!is.na(viewers_in_millions))
+# Impute missing values in the response variable with the mean
+mean_value <- mean(train_data$viewers_in_millions, na.rm = TRUE)
+train_data$viewers_in_millions[is.na(train_data$viewers_in_millions)] <- mean_value
+
+library(tidymodels)
+
+# Define the recipe with step_zv() to remove zero-variance columns
+recipe <- recipe(viewers_in_millions ~ ., data = train_data) %>%
+  step_unknown(all_nominal(), -all_outcomes()) %>%  # Handle unknown levels
+  step_impute_mode(all_nominal(), -all_outcomes()) %>%  # Impute missing values in categorical variables
+  step_dummy(all_nominal(), -all_outcomes()) %>%  # Convert categorical variables to dummy variables
+  step_zv(all_predictors()) %>%  # Remove zero-variance columns
+  step_impute_mean(all_numeric(), -all_outcomes()) %>%  # Impute missing values in numerical variables
+  step_normalize(all_numeric(), -all_outcomes())  # Normalize numerical variables
+
+# Check for missing values in the training data
+sum(is.na(train_data))
+
+```
+
+
+3 Models I want to use and the workflow for them
+```{r}
+# Linear Model
+linear_model <- linear_reg() %>%
+  set_engine("lm") %>%
+  set_mode("regression")
+
+# Decision Tree
+decision_tree_model <- decision_tree() %>%
+  set_engine("rpart") %>%
+  set_mode("regression")
+
+# Random Forest
+random_forest_model <- rand_forest() %>%
+  set_engine("ranger") %>%
+  set_mode("regression")
+
+
+
+# Re-create the workflows with the updated recipe
+linear_workflow <- workflow() %>%
+  add_recipe(recipe) %>%
+  add_model(linear_model)
+
+decision_tree_workflow <- workflow() %>%
+  add_recipe(recipe) %>%
+  add_model(decision_tree_model)
+
+random_forest_workflow <- workflow() %>%
+  add_recipe(recipe) %>%
+  add_model(random_forest_model)
+
+# Fit the models
+linear_fit <- fit(linear_workflow, data = train_data)
+decision_tree_fit <- fit(decision_tree_workflow, data = train_data)
+random_forest_fit <- fit(random_forest_workflow, data = train_data)
+
+```
+
+Cross Validation
+
+```{r}
+# Define cross-validation folds
+cv_folds <- vfold_cv(train_data, v = 5)
+
+# Evaluate Linear Model
+linear_results <- fit_resamples(linear_workflow, resamples = cv_folds)
+linear_metrics <- collect_metrics(linear_results)
+
+# Evaluate Decision Tree
+decision_tree_results <- fit_resamples(decision_tree_workflow, resamples = cv_folds)
+decision_tree_metrics <- collect_metrics(decision_tree_results)
+
+# Evaluate Random Forest
+random_forest_results <- fit_resamples(random_forest_workflow, resamples = cv_folds)
+random_forest_metrics <- collect_metrics(random_forest_results)
+
+```
+
+```{r}
+# Print metrics for comparison
+print(linear_metrics)
+print(decision_tree_metrics)
+print(random_forest_metrics)
+
+```
+
+Based on the metrics printed above, the model that I will be chosing is the linear model due to it having the highest rsq and lowest rmse.
+
+Model Fit
+```{r}
+final_model_fit <- fit(linear_workflow, data = train_data)
+# Predict on test data
+test_predictions <- predict(final_model_fit, new_data = test_data) %>%
+  bind_cols(test_data)
+
+# Evaluate performance on test data
+test_metrics <- metrics(test_predictions, truth = viewers_in_millions, estimate = .pred)
+print(test_metrics)
+
+```
+
+```{r}
+library(ggplot2)
+
+# Combine metrics for plotting
+metrics_combined <- bind_rows(
+  linear_metrics %>% mutate(model = "Linear Model"),
+  decision_tree_metrics %>% mutate(model = "Decision Tree"),
+  random_forest_metrics %>% mutate(model = "Random Forest")
+)
+
+# Plot performance metrics
+ggplot(metrics_combined, aes(x = model, y = mean, fill = .metric)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  labs(title = "Model Performance Comparison", x = "Model", y = "Metric Value") +
+  theme_minimal()
+
+```
+When chosing the final model, it was a close call, however it is obvious when looking at the rmse column that the linear model was the best fitted model of the 3 I chose to test.
+
+
+```{r}
+# Visualization of predictions vs actual values
+ggplot(test_predictions, aes(x = viewers_in_millions, y = .pred)) +
+  geom_point() +
+  geom_abline(slope = 1, intercept = 0, color = "red") +
+  labs(title = "Actual vs Predicted Viewers", x = "Actual Viewers (in millions)", y = "Predicted Viewers (in millions)") +
+  theme_minimal()
+```
+As shown in the plot above, the prediction line roughly matches with the data, making this a good model to use when predicting viewers, however I think there is still some work to be done, whether it be recollecting data or me looking harder for other predictors to make this model improve.
